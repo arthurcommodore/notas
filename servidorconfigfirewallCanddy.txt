@@ -209,6 +209,6 @@ ssh usuario@IP_DA_VPS
 
 Exemplo:
 
-ssh daym@site.com
+ssh user@site.com
 
 ═══════════════════════════════════════════════════════════════
