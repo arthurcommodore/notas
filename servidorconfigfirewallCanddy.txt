@@ -1,0 +1,214 @@
+═══════════════════════════════════════════════════════════════
+CONFIGURAÇÃO BASE VPS UBUNTU + CLOUDFLARE + CADDY + UFW
+═══════════════════════════════════════════════════════════════
+
+SERVIDOR:
+- Ubuntu VPS
+- Cloudflare
+- Caddy
+- UFW
+- Fail2ban
+
+OBJETIVO:
+- HTTPS automático
+- Firewall básico
+- Proteção contra bots/ataques simples
+- Mongo e Redis privados
+- Setup rápido para SaaS
+
+═══════════════════════════════════════════════════════════════
+1. ATUALIZAR SISTEMA
+═══════════════════════════════════════════════════════════════
+
+sudo apt update && sudo apt upgrade -y
+
+═══════════════════════════════════════════════════════════════
+2. INSTALAR CADDY
+═══════════════════════════════════════════════════════════════
+
+sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
+| sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
+| sudo tee /etc/apt/sources.list.d/caddy-stable.list
+
+sudo apt update
+sudo apt install caddy -y
+
+═══════════════════════════════════════════════════════════════
+3. CONFIGURAR CADDY
+═══════════════════════════════════════════════════════════════
+
+Editar arquivo:
+
+sudo nano /etc/caddy/Caddyfile
+
+Exemplo:
+
+cotarpreco.com {
+    reverse_proxy localhost:8080
+}
+
+Se backend rodar em outra porta:
+trocar 8080.
+
+═══════════════════════════════════════════════════════════════
+4. REINICIAR CADDY
+═══════════════════════════════════════════════════════════════
+
+sudo systemctl restart caddy
+
+Verificar status:
+
+sudo systemctl status caddy
+
+═══════════════════════════════════════════════════════════════
+5. CONFIGURAR DNS CLOUDFLARE
+═══════════════════════════════════════════════════════════════
+
+Criar registros:
+
+Tipo: A
+Nome: @
+Conteúdo: IP_DA_VPS
+Proxy: ☁️ Laranja (Proxied)
+
+Tipo: A
+Nome: www
+Conteúdo: IP_DA_VPS
+Proxy: ☁️ Laranja (Proxied)
+
+═══════════════════════════════════════════════════════════════
+6. CLOUDFLARE SSL
+═══════════════════════════════════════════════════════════════
+
+Cloudflare:
+SSL/TLS → Overview
+
+Selecionar:
+
+Full (strict)
+
+Depois:
+
+SSL/TLS → Edge Certificates
+
+Ativar:
+- Always Use HTTPS
+
+═══════════════════════════════════════════════════════════════
+7. CONFIGURAR UFW FIREWALL
+═══════════════════════════════════════════════════════════════
+
+Liberar SSH:
+
+sudo ufw allow 22
+
+Liberar HTTP:
+
+sudo ufw allow 80
+
+Liberar HTTPS:
+
+sudo ufw allow 443
+
+Ativar firewall:
+
+sudo ufw enable
+
+Verificar:
+
+sudo ufw status
+
+═══════════════════════════════════════════════════════════════
+8. INSTALAR FAIL2BAN
+═══════════════════════════════════════════════════════════════
+
+sudo apt install fail2ban -y
+
+Ativar no boot:
+
+sudo systemctl enable fail2ban
+
+Iniciar:
+
+sudo systemctl start fail2ban
+
+Verificar:
+
+sudo fail2ban-client status
+
+═══════════════════════════════════════════════════════════════
+9. VERIFICAR PORTAS ABERTAS
+═══════════════════════════════════════════════════════════════
+
+sudo ss -tulpn
+
+Mongo deve aparecer:
+
+127.0.0.1:27017
+
+Redis deve aparecer:
+
+127.0.0.1:6379
+
+NUNCA:
+
+0.0.0.0:27017
+0.0.0.0:6379
+
+═══════════════════════════════════════════════════════════════
+10. PEGAR IP REAL NO GIN
+═══════════════════════════════════════════════════════════════
+
+ip := c.GetHeader("CF-Connecting-IP")
+
+if ip == "" {
+    ip = c.ClientIP()
+}
+
+═══════════════════════════════════════════════════════════════
+11. TESTES
+═══════════════════════════════════════════════════════════════
+
+HTTPS:
+
+https://cotarpreco.com
+
+Verificar firewall:
+
+sudo ufw status
+
+Verificar fail2ban:
+
+sudo fail2ban-client status
+
+Verificar portas:
+
+sudo ss -tulpn
+
+═══════════════════════════════════════════════════════════════
+OBSERVAÇÕES IMPORTANTES
+═══════════════════════════════════════════════════════════════
+
+- Mongo e Redis privados
+- Cloudflare escondendo IP da VPS
+- HTTPS automático pelo Caddy
+- UFW ativo automaticamente no boot
+- Fail2ban ativo automaticamente no boot
+- SSH funciona normalmente
+- SSH via domínio só funciona se DNS estiver cinza
+
+═══════════════════════════════════════════════════════════════
+SSH PELO IP
+═══════════════════════════════════════════════════════════════
+
+ssh usuario@IP_DA_VPS
+
+Exemplo:
+
+ssh daym@site.com
+
+═══════════════════════════════════════════════════════════════
