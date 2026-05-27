@@ -160,23 +160,8 @@ NUNCA:
 0.0.0.0:6379
 
 ═══════════════════════════════════════════════════════════════
-10. PEGAR IP REAL NO GIN
-═══════════════════════════════════════════════════════════════
-
-ip := c.GetHeader("CF-Connecting-IP")
-
-if ip == "" {
-    ip = c.ClientIP()
-}
-
-═══════════════════════════════════════════════════════════════
 11. TESTES
 ═══════════════════════════════════════════════════════════════
-
-HTTPS:
-
-https://cotarpreco.com
-
 Verificar firewall:
 
 sudo ufw status
@@ -190,25 +175,14 @@ Verificar portas:
 sudo ss -tulpn
 
 ═══════════════════════════════════════════════════════════════
-OBSERVAÇÕES IMPORTANTES
+12. SWAP LINUX
 ═══════════════════════════════════════════════════════════════
 
-- Mongo e Redis privados
-- Cloudflare escondendo IP da VPS
-- HTTPS automático pelo Caddy
-- UFW ativo automaticamente no boot
-- Fail2ban ativo automaticamente no boot
-- SSH funciona normalmente
-- SSH via domínio só funciona se DNS estiver cinza
+comando para criar swap:
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
 
-═══════════════════════════════════════════════════════════════
-SSH PELO IP
-═══════════════════════════════════════════════════════════════
-
-ssh usuario@IP_DA_VPS
-
-Exemplo:
-
-ssh user@site.com
-
-═══════════════════════════════════════════════════════════════
+E adicionar no /etc/fstab:
+/swapfile none swap sw 0 0
