@@ -47,7 +47,7 @@ sudo nano /etc/caddy/Caddyfile
 
 Exemplo:
 
-cotarpreco.com {
+cotarpreco.com, www.cotarpreco.com {
     reverse_proxy localhost:8080
 }
 
@@ -207,3 +207,28 @@ sudo apt install -y mongodb-org
 
 sudo systemctl enable mongod
 sudo systemctl start mongod
+
+═══════════════════════════════════════════════════════════════
+SYSTEMCTL
+═══════════════════════════════════════════════════════════════
+
+sudo vim /etc/systemd/system/cotarpreco.service
+
+[Unit]
+Description=CotarPreco
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/cotarpreco-linux-amd64
+ExecStart=/root/cotarpreco-linux-amd64/cotarpreco
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reload
+sudo systemctl enable cotarpreco
+sudo systemctl start cotarpreco
