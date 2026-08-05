@@ -1,0 +1,7 @@
+═══════════════════════════════════════════════════════════════
+COMANDOS RECORRENTES
+═══════════════════════════════════════════════════════════════
+find .   \( -name "*.go" -o -name "*.js" -o -name "*.templ" \)   ! -name "*_te
+mpl.go"   ! -name "*_test.go"   -print0 | xargs -0 wc -l | tail -1
+
+scp ./dist/cotarpreco-linux-amd64.tar.gz    root@ipservidor:/root
